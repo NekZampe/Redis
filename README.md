@@ -1,7 +1,7 @@
 # My Redis Implementation
 
 ## Introduction
-Welcome to my Redis implementation! This project is inspired by the "Build Your Own Redis with C/C++" tutorial, which offers a hands-on approach to understanding network programming and data structures. Redis is an in-memory data structure store, commonly used as a database, cache, and message broker. Its importance lies in its speed, simplicity, and versatility, making it a vital tool in modern web applications and services.
+Welcome to my Redis implementation! This project is inspired by the ["Build Your Own Redis with C/C++"](https://build-your-own.org/redis/) book, which offers a hands-on approach to understanding network programming and data structures. Redis is an in-memory data structure store, commonly used as a database, cache, and message broker. Its importance lies in its speed, simplicity, and versatility, making it a vital tool in modern web applications and services.
 
 ## What is Redis?
 Redis (REmote DIctionary Server) is an open-source, advanced key-value store that supports various data structures, such as strings, hashes, lists, sets, and sorted sets. It is known for its high performance and is often used for caching, session management, real-time analytics, and message queuing. Redis operates primarily in memory, providing faster data access than traditional disk-based databases.
