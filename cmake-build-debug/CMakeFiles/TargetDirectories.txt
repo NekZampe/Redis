@@ -1,0 +1,3 @@
+/home/nektarios/CLionProjects/Redis/cmake-build-debug/CMakeFiles/Redis.dir
+/home/nektarios/CLionProjects/Redis/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/nektarios/CLionProjects/Redis/cmake-build-debug/CMakeFiles/rebuild_cache.dir

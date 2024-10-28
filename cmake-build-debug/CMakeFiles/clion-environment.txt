@@ -1,0 +1,4 @@
+ToolSet: 1.0 (local)Ninja: 1.12.0@/home/nektarios/.cache/JetBrains/RemoteDev/dist/62d1a6aa9ad3e_CLion-243.20847.43/bin/ninja/linux/x64/ninja
+Options: 
+
+Options:-DCMAKE_MAKE_PROGRAM=/home/nektarios/.cache/JetBrains/RemoteDev/dist/62d1a6aa9ad3e_CLion-243.20847.43/bin/ninja/linux/x64/ninja
