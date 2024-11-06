@@ -1,1 +1,1 @@
-/usr/bin/c++ -rdynamic CMakeFiles/serverDriver.dir/server/server.cpp.o CMakeFiles/serverDriver.dir/server/serverDriver.cpp.o -o serverDriver 
+/usr/bin/c++ -rdynamic CMakeFiles/serverDriver.dir/server/server.cpp.o -o serverDriver 

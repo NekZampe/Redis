@@ -1,4 +1,4 @@
-# Install script for directory: /root/projects/Redis
+# Install script for directory: /home/nektarios/CLionProjects/Redis
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/root/projects/Redis/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/nektarios/CLionProjects/Redis/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

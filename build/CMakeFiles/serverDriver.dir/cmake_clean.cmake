@@ -1,8 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/serverDriver.dir/server/server.cpp.o"
   "CMakeFiles/serverDriver.dir/server/server.cpp.o.d"
-  "CMakeFiles/serverDriver.dir/server/serverDriver.cpp.o"
-  "CMakeFiles/serverDriver.dir/server/serverDriver.cpp.o.d"
   "serverDriver"
   "serverDriver.pdb"
 )
