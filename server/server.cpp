@@ -19,6 +19,9 @@
 #include <sys/socket.h>
 #include <netinet/ip.h>
 #include <vector>
+#include <iostream>
+
+using std::cerr, std::endl;
 
 
 static void msg(const char *msg) {
@@ -48,7 +51,8 @@ static void fd_set_nb(int fd) {
     }
 }
 
-const size_t k_max_msg = 4096;
+const size_t k_max_msg = 1024; // Define your maximum message size
+#define BUFFER_SIZE (4 + k_max_msg + 1)  // Define your buffer size
 
 enum {
     STATE_REQ = 0,
@@ -56,17 +60,34 @@ enum {
     STATE_END = 2,  // mark the connection for deletion
 };
 
+struct linearBuffer {
+    uint8_t buffer[BUFFER_SIZE];
+    size_t start;
+    size_t end;
+    size_t size;
+};
+
+// Initialize circular buffer
+void init_buffer(linearBuffer *cb) {
+    cb->start = 0;
+    cb->end = 0;
+    cb->size = 0;  // No data initially
+}
+
 struct Conn {
     int fd = -1;
     uint32_t state = 0;     // either STATE_REQ or STATE_RES
-    // buffer for reading
-    size_t rbuf_size = 0;
-    uint8_t rbuf[4 + k_max_msg];
-    // buffer for writing
-    size_t wbuf_size = 0;
-    size_t wbuf_sent = 0;
-    uint8_t wbuf[4 + k_max_msg];
+    // Buffer for reading
+    linearBuffer rbuf;  // Circular buffer for reading
+    // Buffer for writing
+    linearBuffer wbuf;  // Circular buffer for writing
 };
+
+void init_conn(Conn *conn) {
+    init_buffer(&conn->rbuf);
+    init_buffer(&conn->wbuf);
+}
+
 
 static void conn_put(std::vector<Conn *> &fd2conn, struct Conn *conn) {
     if (fd2conn.size() <= (size_t)conn->fd) {
@@ -95,9 +116,9 @@ static int32_t accept_new_conn(std::vector<Conn *> &fd2conn, int fd) {
     }
     conn->fd = connfd;
     conn->state = STATE_REQ;
-    conn->rbuf_size = 0;
-    conn->wbuf_size = 0;
-    conn->wbuf_sent = 0;
+
+    init_buffer(&conn->rbuf);
+    init_buffer(&conn->wbuf);
     conn_put(fd2conn, conn);
     return 0;
 }
@@ -106,58 +127,108 @@ static void state_req(Conn *conn);
 static void state_res(Conn *conn);
 
 static bool try_one_request(Conn *conn) {
-    // try to parse a request from the buffer
-    if (conn->rbuf_size < 4) {
-        // not enough data in the buffer. Will retry in the next iteration
-        return false;
+    cerr << "try_one_request\n";
+
+    // Ensure there is enough data in the buffer (at least the size of the length field)
+    if (conn->rbuf.size < 4) {
+        cerr << "Not enough data in buffer. Buffer size: " << conn->rbuf.size << endl;
+        msg("Not enough Data in Buffer");
+        return false; // Not enough data to process request
     }
+
     uint32_t len = 0;
-    memcpy(&len, &conn->rbuf[0], 4);
+    // Read the length of the message
+    memcpy(&len, &conn->rbuf.buffer[conn->rbuf.start], 4);
+    cerr << "Message length (len): " << len << endl;
+
+    // If the message length is greater than the max size, reject it
     if (len > k_max_msg) {
-        msg("too long");
+        cerr << "Message too long. Max allowed: " << k_max_msg << ", received: " << len << endl;
+        msg("Message too long");
         conn->state = STATE_END;
         return false;
     }
-    if (4 + len > conn->rbuf_size) {
-        // not enough data in the buffer. Will retry in the next iteration
-        return false;
+
+    // Ensure the buffer contains the full message (length + 4 bytes for the length field)
+    if (conn->rbuf.size < len + 4) {
+        cerr << "Not enough data in buffer to process full message. Buffer size: "
+             << conn->rbuf.size << ", required: " << len + 4 << endl;
+        return false; // Not enough data to process the full message
     }
 
-    // got one request, do something with it
-    printf("client says: %.*s\n", len, &conn->rbuf[4]);
+    // Now we have the complete message, process it
+    cerr << "Processing complete message: ";
+    printf("client says: %.*s\n", len, &conn->rbuf.buffer[(conn->rbuf.start + 4) % BUFFER_SIZE]);
 
-    // generating echoing response
-    memcpy(&conn->wbuf[0], &len, 4);
-    memcpy(&conn->wbuf[4], &conn->rbuf[4], len);
-    conn->wbuf_size = 4 + len;
+    // Prepare the echo response: copy the length and the message into the write buffer
+    memcpy(&conn->wbuf.buffer[0], &len, 4);
+    memcpy(&conn->wbuf.buffer[4], &conn->rbuf.buffer[(conn->rbuf.start + 4) % BUFFER_SIZE], len);
+    conn->wbuf.size = 4 + len; // Set the size of the response
+    cerr << "Prepared response with size: " << conn->wbuf.size << endl;
 
-    // remove the request from the buffer.
-    // note: frequent memmove is inefficient.
-    // note: need better handling for production code.
-    size_t remain = conn->rbuf_size - 4 - len;
-    if (remain) {
-        memmove(conn->rbuf, &conn->rbuf[4 + len], remain);
+    // Remove the request from the rbuf (circular buffer)
+    size_t remain = conn->rbuf.size - (4 + len);
+    cerr << "Remaining data in rbuf after message removal: " << remain << endl;
+
+    if (remain > 0) {
+        // Move the remaining data to the front of the buffer
+        conn->rbuf.start = (conn->rbuf.start + 4 + len) % BUFFER_SIZE;
+        conn->rbuf.size = remain;
+        cerr << "Remaining data moved to front. New rbuf.start: " << conn->rbuf.start << ", rbuf.size: " << conn->rbuf.size << endl;
+    } else {
+        // Reset the buffer if no data is left
+        conn->rbuf.start = 0;
+        conn->rbuf.end = 0;// Ensure `start` and `end` are the same
+        conn->rbuf.size = 0;
+        cerr << "Buffer reset. rbuf.start: " << conn->rbuf.start << ", rbuf.size: " << conn->rbuf.size << ", rbuf.end: " << conn->rbuf.end << endl;
     }
-    conn->rbuf_size = remain;
 
-    // change state
+    // Transition to the response state
     conn->state = STATE_RES;
-    state_res(conn);
+    cerr << "Transitioning to response state. State: STATE_RES" << endl;
+    state_res(conn); // Send the response
 
-    // continue the outer loop if the request was fully processed
+    // Continue processing if the request was fully handled
     return (conn->state == STATE_REQ);
 }
 
+
+
+
 static bool try_fill_buffer(Conn *conn) {
-    // try to fill the buffer
-    assert(conn->rbuf_size < sizeof(conn->rbuf));
+    cerr << "try_fill_buffer\n";
     ssize_t rv = 0;
+
+    // Calculate how much space is left in the circular buffer
+    size_t available_space = BUFFER_SIZE - conn->rbuf.size;
+    cerr << "available_space: " << available_space << endl; // Log available space
+
+    // If no space left, start overwriting from the start
+    if (available_space == 0) {
+        msg("No space left in the buffer, overwriting data.");
+
+        // Move start forward to overwrite the oldest data
+        conn->rbuf.start = (conn->rbuf.start + available_space) % BUFFER_SIZE;
+        conn->rbuf.size = BUFFER_SIZE; // Buffer is full
+    }
+
     do {
-        size_t cap = sizeof(conn->rbuf) - conn->rbuf_size;
-        rv = read(conn->fd, &conn->rbuf[conn->rbuf_size], cap);
+        // Determine how much capacity we can read into the buffer
+        size_t cap = (conn->rbuf.start + BUFFER_SIZE - conn->rbuf.end - 1) % BUFFER_SIZE; // 1 for the reserved space to distinguish full/empty
+        cerr << "cap: " << cap << endl; // Log capacity
+
+        // Ensure we only read the maximum available space
+        if (cap > available_space) {
+            cap = available_space;
+        }
+
+        // Read data into the buffer
+        rv = read(conn->fd, &conn->rbuf.buffer[conn->rbuf.end], cap);
+
     } while (rv < 0 && errno == EINTR);
+
     if (rv < 0 && errno == EAGAIN) {
-        // got EAGAIN, stop.
+        // Got EAGAIN, stop.
         return false;
     }
     if (rv < 0) {
@@ -166,7 +237,7 @@ static bool try_fill_buffer(Conn *conn) {
         return false;
     }
     if (rv == 0) {
-        if (conn->rbuf_size > 0) {
+        if (conn->rbuf.size > 0) {
             msg("unexpected EOF");
         } else {
             msg("EOF");
@@ -175,14 +246,28 @@ static bool try_fill_buffer(Conn *conn) {
         return false;
     }
 
-    conn->rbuf_size += (size_t)rv;
-    assert(conn->rbuf_size <= sizeof(conn->rbuf));
+    // Update end index and size of the buffer
+    conn->rbuf.end = (conn->rbuf.end + rv) % BUFFER_SIZE; // Wrap around
+    conn->rbuf.size = (conn->rbuf.size + rv) % (BUFFER_SIZE + 1);  // Ensure size doesn't exceed BUFFER_SIZE
 
-    // Try to process requests one by one.
-    // Why is there a loop? Please read the explanation of "pipelining".
+    cerr << "rbuf.end: " << conn->rbuf.end << endl; // Log end index
+    cerr << "rbuf.size: " << conn->rbuf.size << endl; // Log current size
+
+    // Ensure size does not exceed buffer capacity
+    assert(conn->rbuf.size <= BUFFER_SIZE);
+
+    // Process received requests
     while (try_one_request(conn)) {}
+
+    // Log the state of the buffer after processing
+    cerr << "After processing: rbuf.size = " << conn->rbuf.size
+         << ", rbuf.start = " << conn->rbuf.start
+         << ", rbuf.end = " << conn->rbuf.end << endl;
+
     return (conn->state == STATE_REQ);
 }
+
+
 
 static void state_req(Conn *conn) {
     while (try_fill_buffer(conn)) {}
@@ -190,12 +275,22 @@ static void state_req(Conn *conn) {
 
 static bool try_flush_buffer(Conn *conn) {
     ssize_t rv = 0;
+
+    cerr << "try_flush_buffer\n";
+    cerr << "Initial wbuf.size: " << conn->wbuf.size << ", wbuf.start: " << conn->wbuf.start << ", wbuf.end: " << conn->wbuf.end << endl;
+
     do {
-        size_t remain = conn->wbuf_size - conn->wbuf_sent;
-        rv = write(conn->fd, &conn->wbuf[conn->wbuf_sent], remain);
+        // Calculate how much data is left in the circular buffer to be written
+        size_t remain = conn->wbuf.size; // Amount of data to write from wbuf
+        cerr << "Attempting to write " << remain << " bytes from wbuf[start=" << conn->wbuf.start << "]" << endl;
+
+        rv = write(conn->fd, &conn->wbuf.buffer[conn->wbuf.start], remain);
+        cerr << "write() returned: " << rv << " (errno: " << errno << ")" << endl;
     } while (rv < 0 && errno == EINTR);
+
     if (rv < 0 && errno == EAGAIN) {
-        // got EAGAIN, stop.
+        // Got EAGAIN, stop.
+        cerr << "write() returned EAGAIN, will try again later." << endl;
         return false;
     }
     if (rv < 0) {
@@ -203,18 +298,28 @@ static bool try_flush_buffer(Conn *conn) {
         conn->state = STATE_END;
         return false;
     }
-    conn->wbuf_sent += (size_t)rv;
-    assert(conn->wbuf_sent <= conn->wbuf_size);
-    if (conn->wbuf_sent == conn->wbuf_size) {
-        // response was fully sent, change state back
-        conn->state = STATE_REQ;
-        conn->wbuf_sent = 0;
-        conn->wbuf_size = 0;
-        return false;
+
+    // Update the start pointer and size of the buffer
+    conn->wbuf.start = (conn->wbuf.start + rv) % BUFFER_SIZE;
+    conn->wbuf.size -= (size_t)rv;
+
+    cerr << "After write, wbuf.size: " << conn->wbuf.size << ", wbuf.start: " << conn->wbuf.start << endl;
+
+    // Check if the buffer is empty after writing
+    if (conn->wbuf.size == 0) {
+        // All data has been sent, reset buffer pointers
+        cerr << "Buffer is empty after writing. Resetting buffer pointers." << endl;
+        conn->wbuf.start = 0;
+        conn->wbuf.end = 0;
+        conn->state = STATE_REQ; // Go back to request state
+        return false; // No more data to flush
     }
-    // still got some data in wbuf, could try to write again
+
+    // Still got some data in wbuf, could try to write again
+    cerr << "Data remains in buffer, will attempt to write again." << endl;
     return true;
 }
+
 
 static void state_res(Conn *conn) {
     while (try_flush_buffer(conn)) {}
@@ -254,6 +359,8 @@ int main() {
     if (rv) {
         die("listen()");
     }
+
+    printf("Server listening on: %d\n",ntohs(addr.sin_port));
 
     // a map of all client connections, keyed by fd
     std::vector<Conn *> fd2conn;

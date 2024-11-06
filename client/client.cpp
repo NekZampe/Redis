@@ -6,6 +6,7 @@
 //     |||_| \_\___|\__,_|_|___/ |_|_| |_|  \____| ||
 //     \============================================/
 //           Created by nektarios on 10/28/24.
+
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -16,7 +17,6 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/ip.h>
-
 
 static void msg(const char *msg) {
     fprintf(stderr, "%s\n", msg);
@@ -119,22 +119,41 @@ int main() {
         die("connect");
     }
 
-    // multiple pipelined requests
-    const char *query_list[3] = {"hello1", "hello2", "hello3"};
-    for (size_t i = 0; i < 3; ++i) {
-        int32_t err = send_req(fd, query_list[i]);
-        if (err) {
-            goto L_DONE;
+    // Interactive input for requests
+    char input_buffer[k_max_msg + 1]; // Buffer for user input
+
+    while (1) {
+        printf("Enter request (or 'exit' to quit): ");
+        if (fgets(input_buffer, sizeof(input_buffer), stdin) == NULL) {
+            break; // Exit on EOF
         }
-    }
-    for (size_t i = 0; i < 3; ++i) {
-        int32_t err = read_res(fd);
+
+        // Remove trailing newline character
+        size_t len = strlen(input_buffer);
+        if (len > 0 && input_buffer[len - 1] == '\n') {
+            input_buffer[len - 1] = '\0';
+        }
+
+        // Check for exit command
+        if (strcmp(input_buffer, "exit") == 0) {
+            break;
+        }
+
+        // Send request
+        int32_t err = send_req(fd, input_buffer);
         if (err) {
-            goto L_DONE;
+            msg("send_req error");
+            break;
+        }
+
+        // Read response
+        err = read_res(fd);
+        if (err) {
+            msg("read_res error");
+            break;
         }
     }
 
-L_DONE:
     close(fd);
     return 0;
 }

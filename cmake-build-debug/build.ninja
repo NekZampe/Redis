@@ -49,12 +49,6 @@ cmake_ninja_workdir = /home/nektarios/CLionProjects/Redis/cmake-build-debug/
 
 build cmake_object_order_depends_target_clientDriver: phony || .
 
-build CMakeFiles/clientDriver.dir/client/clientDriver.cpp.o: CXX_COMPILER__clientDriver_unscanned_Debug /home/nektarios/CLionProjects/Redis/client/clientDriver.cpp || cmake_object_order_depends_target_clientDriver
-  DEP_FILE = CMakeFiles/clientDriver.dir/client/clientDriver.cpp.o.d
-  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
-  OBJECT_DIR = CMakeFiles/clientDriver.dir
-  OBJECT_FILE_DIR = CMakeFiles/clientDriver.dir/client
-
 build CMakeFiles/clientDriver.dir/client/client.cpp.o: CXX_COMPILER__clientDriver_unscanned_Debug /home/nektarios/CLionProjects/Redis/client/client.cpp || cmake_object_order_depends_target_clientDriver
   DEP_FILE = CMakeFiles/clientDriver.dir/client/client.cpp.o.d
   FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
@@ -69,8 +63,9 @@ build CMakeFiles/clientDriver.dir/client/client.cpp.o: CXX_COMPILER__clientDrive
 #############################################
 # Link the executable clientDriver
 
-build clientDriver: CXX_EXECUTABLE_LINKER__clientDriver_Debug CMakeFiles/clientDriver.dir/client/clientDriver.cpp.o CMakeFiles/clientDriver.dir/client/client.cpp.o
+build clientDriver: CXX_EXECUTABLE_LINKER__clientDriver_Debug CMakeFiles/clientDriver.dir/client/client.cpp.o
   FLAGS = -g
+  LINK_FLAGS = -rdynamic
   OBJECT_DIR = CMakeFiles/clientDriver.dir
   POST_BUILD = :
   PRE_LINK = :
@@ -92,12 +87,6 @@ build CMakeFiles/serverDriver.dir/server/server.cpp.o: CXX_COMPILER__serverDrive
   OBJECT_DIR = CMakeFiles/serverDriver.dir
   OBJECT_FILE_DIR = CMakeFiles/serverDriver.dir/server
 
-build CMakeFiles/serverDriver.dir/server/serverDriver.cpp.o: CXX_COMPILER__serverDriver_unscanned_Debug /home/nektarios/CLionProjects/Redis/server/serverDriver.cpp || cmake_object_order_depends_target_serverDriver
-  DEP_FILE = CMakeFiles/serverDriver.dir/server/serverDriver.cpp.o.d
-  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
-  OBJECT_DIR = CMakeFiles/serverDriver.dir
-  OBJECT_FILE_DIR = CMakeFiles/serverDriver.dir/server
-
 
 # =============================================================================
 # Link build statements for EXECUTABLE target serverDriver
@@ -106,8 +95,9 @@ build CMakeFiles/serverDriver.dir/server/serverDriver.cpp.o: CXX_COMPILER__serve
 #############################################
 # Link the executable serverDriver
 
-build serverDriver: CXX_EXECUTABLE_LINKER__serverDriver_Debug CMakeFiles/serverDriver.dir/server/server.cpp.o CMakeFiles/serverDriver.dir/server/serverDriver.cpp.o
+build serverDriver: CXX_EXECUTABLE_LINKER__serverDriver_Debug CMakeFiles/serverDriver.dir/server/server.cpp.o
   FLAGS = -g
+  LINK_FLAGS = -rdynamic
   OBJECT_DIR = CMakeFiles/serverDriver.dir
   POST_BUILD = :
   PRE_LINK = :
@@ -149,6 +139,11 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # Folder: /home/nektarios/CLionProjects/Redis/cmake-build-debug
 
 build all: phony clientDriver serverDriver
+
+# =============================================================================
+# Unknown Build Time Dependencies.
+# Tell Ninja that they may appear as side effects of build rules
+# otherwise ordered by order-only dependencies.
 
 # =============================================================================
 # Built-in targets
