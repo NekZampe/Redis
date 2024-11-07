@@ -11,3 +11,7 @@ Redis (REmote DIctionary Server) is an open-source, advanced key-value store tha
 - **Versatile Data Structures**: Redis supports multiple data types, allowing developers to choose the most appropriate structure for their needs.
 - **Scalability**: Redis can handle large volumes of data and is easily scalable, making it suitable for both small applications and large enterprise systems.
 - **Persistence Options**: While primarily an in-memory store, Redis offers persistence options to ensure data durability.
+
+
+
+![redis](https://miro.medium.com/v2/resize:fit:720/format:webp/0*eEt4kTo6zQurjVCu)
