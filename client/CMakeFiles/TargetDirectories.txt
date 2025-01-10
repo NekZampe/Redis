@@ -1,0 +1,4 @@
+/home/nektarios/CLionProjects/Redis/client/CMakeFiles/clientDriver.dir
+/home/nektarios/CLionProjects/Redis/client/CMakeFiles/serverDriver.dir
+/home/nektarios/CLionProjects/Redis/client/CMakeFiles/edit_cache.dir
+/home/nektarios/CLionProjects/Redis/client/CMakeFiles/rebuild_cache.dir
