@@ -105,6 +105,12 @@ build CMakeFiles/serverDriver.dir/server/test_avl.cpp.o: CXX_COMPILER__serverDri
   OBJECT_DIR = CMakeFiles/serverDriver.dir
   OBJECT_FILE_DIR = CMakeFiles/serverDriver.dir/server
 
+build CMakeFiles/serverDriver.dir/server/zset.cpp.o: CXX_COMPILER__serverDriver_unscanned_Debug /home/nektarios/CLionProjects/Redis/server/zset.cpp || cmake_object_order_depends_target_serverDriver
+  DEP_FILE = CMakeFiles/serverDriver.dir/server/zset.cpp.o.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles/serverDriver.dir
+  OBJECT_FILE_DIR = CMakeFiles/serverDriver.dir/server
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target serverDriver
@@ -113,7 +119,7 @@ build CMakeFiles/serverDriver.dir/server/test_avl.cpp.o: CXX_COMPILER__serverDri
 #############################################
 # Link the executable serverDriver
 
-build serverDriver: CXX_EXECUTABLE_LINKER__serverDriver_Debug CMakeFiles/serverDriver.dir/server/server.cpp.o CMakeFiles/serverDriver.dir/server/hashtable.cpp.o CMakeFiles/serverDriver.dir/server/avl.cpp.o CMakeFiles/serverDriver.dir/server/test_avl.cpp.o
+build serverDriver: CXX_EXECUTABLE_LINKER__serverDriver_Debug CMakeFiles/serverDriver.dir/server/server.cpp.o CMakeFiles/serverDriver.dir/server/hashtable.cpp.o CMakeFiles/serverDriver.dir/server/avl.cpp.o CMakeFiles/serverDriver.dir/server/test_avl.cpp.o CMakeFiles/serverDriver.dir/server/zset.cpp.o
   FLAGS = -g
   LINK_FLAGS = -rdynamic
   OBJECT_DIR = CMakeFiles/serverDriver.dir

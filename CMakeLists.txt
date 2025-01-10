@@ -11,8 +11,11 @@ add_executable(serverDriver
         server/hashtable.cpp
         server/hashtable.h
         server/avl.cpp
-        server/avl.h
         server/test_avl.cpp
+        server/avl.h
+        server/zset.cpp
+        server/zset.h
+        server/common.h
 )
 
 

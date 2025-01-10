@@ -215,6 +215,12 @@ CMAKE_TAPI:FILEPATH=CMAKE_TAPI-NOTFOUND
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
+//No help, variable specified on the command line.
+Python3_EXECUTABLE:UNINITIALIZED=/home/nektarios/CLionProjects/Redis/.venv/bin/python
+
+//No help, variable specified on the command line.
+Python_EXECUTABLE:UNINITIALIZED=/home/nektarios/CLionProjects/Redis/.venv/bin/python
+
 //Value Computed by CMake
 Redis_BINARY_DIR:STATIC=/home/nektarios/CLionProjects/Redis/cmake-build-debug
 
