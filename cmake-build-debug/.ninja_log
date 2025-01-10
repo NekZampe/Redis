@@ -1,11 +1,7 @@
 # ninja log v6
-2	219	1730091521516469035	CMakeFiles/Redis.dir/server/server.cpp.o	b0d8a664ee0afe53
-1	218	1730091521506317680	CMakeFiles/Redis.dir/client/client.cpp.o	41a52745962740b5
-0	28	1730859282792937204	build.ninja	3c38754d3202d881
-1588	1849	1730859265679540203	serverDriver	4e5acafbc424a64a
-3	2785	1730089721037915140	CMakeFiles/Redis.dir/main.cpp.o	43924fedde68e4f2
-1	665	1730856987447132613	CMakeFiles/clientDriver.dir/client/client.cpp.o	4eec1137693899d7
-0	76	1730091785700801607	CMakeFiles/clientDriver.dir/client/clientDriver.cpp.o	c614e9aa95418ee4
-665	844	1730856988104240601	clientDriver	6a1fa957ef32f0ef
-1	1588	1730859264094329503	CMakeFiles/serverDriver.dir/server/server.cpp.o	ae6322bb4b427f52
-1	235	1730091793149919211	CMakeFiles/serverDriver.dir/server/serverDriver.cpp.o	711507bdb5b8091d
+0	28	1736467514520790855	build.ninja	3c38754d3202d881
+810	981	1734478604032193243	serverDriver	25a46122c5ecf5c4
+1	746	1734470383097560192	CMakeFiles/clientDriver.dir/client/client.cpp.o	4eec1137693899d7
+746	1020	1734470383845060192	clientDriver	6a1fa957ef32f0ef
+1	810	1734478603219693243	CMakeFiles/serverDriver.dir/server/server.cpp.o	ae6322bb4b427f52
+13	309	1734470116597635137	CMakeFiles/serverDriver.dir/server/hashtable.cpp.o	cbccdd7b9d058929

@@ -8,6 +8,11 @@ add_executable(clientDriver
 
 add_executable(serverDriver
         server/server.cpp
+        server/hashtable.cpp
+        server/hashtable.h
+        server/avl.cpp
+        server/avl.h
+        server/test_avl.cpp
 )
 
 
